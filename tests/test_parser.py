@@ -1,5 +1,7 @@
+import unittest
 from cian_parser import parser
 import requests
+
 
 def test_aggregated_list(first, last_page):
     result = parser.collect_links(first, last_page)

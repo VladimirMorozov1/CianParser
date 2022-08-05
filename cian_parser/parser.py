@@ -1,7 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
 import time
-#import re
 
 
 def pages(page_number: int) -> list:
@@ -24,7 +23,7 @@ def collect_links(first_page: int, last_page: int) -> set:
     set_of_links = set()
     for current_page in range(first_page,last_page):
         set_of_links.update(pages(current_page))
-        time.sleep(2) # implement this line to avoid getting blocked on a website
+        # time.sleep(2) # implement this line to avoid getting blocked on cian
     
     return set_of_links
 
@@ -41,22 +40,16 @@ def collect_flat_data(link: str) -> dict:
     flat_data["Link"] = link
     flat_data["Name"] = text.find("h1", attrs = {'class': 'a10a3f92e9--title--UEAG3'}).string
 
-    flat_data["address"] = text.find_all("a", attrs = {'class': 'a10a3f92e9--link--ulbh5 a10a3f92e9--address-item--ScpSN'})
-    # flat_data["Region"] = address[0].string
-    # flat_data["Area"] = address[1].string
-    # flat_data["District"] = address[2].string
-    # flat_data["Street"] = address[3].string
-    # flat_data["House_number"] = address[4].string
+    flat_data["Address"] = ",".join([ad.string for ad in text.find_all("a", attrs = {'class': 'a10a3f92e9--link--ulbh5 a10a3f92e9--address-item--ScpSN'})])
 
-    flat_data["main_attributes"] = text.find_all("div", attrs = {'class': 'a10a3f92e9--info-value--bm3DC'})
-    # flat_data["Total_S"] = main_attributes[0].string[:-3].replace(',', '.') # could be converted to float
-    # flat_data["Living_S"] = main_attributes[1].string[:-3].replace(',', '.') # could be converted to float
-    # flat_data["Kitchen_S"] = main_attributes[2].string[:-3].replace(',', '.') # could be converted to float
-    # flat_data["Floor"] = main_attributes[3].string.split()[0] # could be converted to int
-    # flat_data["Number_of_floors"] = main_attributes[3].string.split()[2] # could be converted to int
-    # flat_data["Construction_year"] = main_attributes[4].string # could be converted to int
+    main_attribute_names = [main_name.string for main_name in text.find_all("div", attrs = {'class': 'a10a3f92e9--info-title--JWtIm'})]
+    main_attribute_values = [main_value.string for main_value in text.find_all("div", attrs = {'class': 'a10a3f92e9--info-value--bm3DC'})]
+    main_attributes = dict()
+    for i in range(len(main_attribute_names)):
+        main_attributes[main_attribute_names[i]] = main_attribute_values[i]
+    flat_data["Main_attributes"] = main_attributes
 
-    flat_data["Description"] = text.find('p', attrs = {'class': 'a10a3f92e9--description-text--YNzWU'}).string
+    flat_data["Description"] = text.find('p', attrs = {'class': 'a10a3f92e9--description-text--YNzWU'}).string.replace("'", " ")
 
     additional_names = [attr_name.string for attr_name in text.find_all("span", attrs = {'class': 'a10a3f92e9--name--x7_lt'})]
     additioinal_values = [attr_value.string for attr_value in text.find_all("span", attrs = {'class': 'a10a3f92e9--value--Y34zN'})]
