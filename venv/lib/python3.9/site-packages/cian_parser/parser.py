@@ -1,6 +1,5 @@
 import requests
 from bs4 import BeautifulSoup
-import time
 
 
 def pages(page_number: int) -> list:
@@ -64,5 +63,9 @@ def collect_flat_data(link: str) -> dict:
     for i in range(len(house_info_names)):
         house_attributes[house_info_names[i]] = house_info_values[i]
     flat_data["House_attributes"] = house_attributes
+
+    for key, value in flat_data.items():
+        if type(value) == None:
+             flat_data[key] = "UNSPECIFIED"
     
     return flat_data

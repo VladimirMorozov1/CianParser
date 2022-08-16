@@ -1,12 +1,11 @@
 import requests
 from bs4 import BeautifulSoup
-import time
 
 
 def pages(page_number: int) -> list:
     url = f"https://spb.cian.ru/cat.php?deal_type=sale&engine_version=2&offer_type=flat&only_flat=1&p={page_number}&region=2&room1=1&room2=1&room3=1&room4=1&room5=1&room6=1&room7=1&room9=1&sort=creation_date_asc"
     headers = {'User-Agent':
-                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36'}
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Safari/605.1.15'}
     response = requests.get(url, headers = headers)
     page_text = BeautifulSoup(response.text, "html.parser")
     links = page_text.find_all('article')
@@ -31,7 +30,7 @@ def collect_links(first_page: int, last_page: int) -> set:
 
 def collect_flat_data(link: str) -> dict:
     headers = {'user-agent':
-                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36'}
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Safari/605.1.15'}
     response = requests.get(link, headers = headers)
     text = BeautifulSoup(response.text, "html.parser")
     
@@ -64,5 +63,9 @@ def collect_flat_data(link: str) -> dict:
     for i in range(len(house_info_names)):
         house_attributes[house_info_names[i]] = house_info_values[i]
     flat_data["House_attributes"] = house_attributes
+
+    for key, value in flat_data.items():
+        if type(value) == None:
+             flat_data[key] = "UNSPECIFIED"
     
     return flat_data
